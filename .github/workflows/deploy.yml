@@ -1,3 +1,4 @@
+#file: noinspection YAMLSchemaValidation
 name: CD
 on:
   push:
@@ -15,8 +16,7 @@ jobs:
           username: ${{secrets.SSH_USER}}
           port: ${{secrets.SSH_PORT}}
           script: |
-            cd wd-api-wrapper
+            cd ${{github.event.repository.name}}
             git pull origin main
             make build ENV=prod
-            make down ENV=prod
-            make up ENV=prod
+            make reload ENV=prod

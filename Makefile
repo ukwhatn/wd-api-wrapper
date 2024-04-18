@@ -41,4 +41,10 @@ init:
 install-local-requirements:
 	find . -name requirements.txt -exec pip install -r {} \;
 
+commit:
+	git add .
+	git commit -m "${MSG}"
+	git push
+	gh pr create --base main --head $(shell git branch --show-current)
+
 PHONY: build up down reset ps logs revision migrate init install-local-requirements

@@ -42,6 +42,8 @@ class PageSearchCriteria(BaseModel):
     separate: str = None
     wrapper: str = None
 
+    id: bool = False
+
     def as_dict(self):
         return {k: v for k, v in self.dict().items() if v is not None}
 
@@ -54,6 +56,8 @@ def get_pages(
 ):
     parameters = criteria.as_dict()
 
+    is_id_requested = parameters.pop("id", False)
+
     with wikidot.Client() as client:
         site = get_site(client, site_name)
 
@@ -61,13 +65,14 @@ def get_pages(
             return site
 
         pages = site.pages.search(**parameters)
-        pages.get_page_ids()
+        if is_id_requested:
+            pages.get_page_ids()
 
         res = []
         for page in pages:
             res.append(
                 {
-                    "id": page.id,
+                    "id": page.id if is_id_requested else None,
                     "fullname": page.fullname,
                     "name": page.name,
                     "category": page.category,
@@ -111,7 +116,7 @@ def get_pages(
     return res
 
 
-@router.post("/{site_name}/pages/{page_fullname}/source")
+@router.get("/{site_name}/pages/{page_fullname}/source")
 def get_page_source(
         site_name: str,
         page_fullname: str
@@ -132,10 +137,12 @@ def get_page_source(
         }
 
 
-@router.post("/{site_name}/pages/{page_fullname}/revisions")
+@router.get("/{site_name}/pages/{page_fullname}/revisions")
 def get_page_revisions(
         site_name: str,
-        page_fullname: str
+        page_fullname: str,
+        source: bool = False,
+        html: bool = False
 ):
     with wikidot.Client() as client:
         site = get_site(client, site_name)
@@ -149,6 +156,11 @@ def get_page_revisions(
             return JSONResponse(status_code=404, content={"status": "error", "message": "page not found"})
 
         revisions = page.revisions
+
+        if source:
+            revisions.get_sources()
+        if html:
+            revisions.get_htmls()
 
         res = []
         for revision in revisions:
@@ -165,8 +177,8 @@ def get_page_revisions(
                     },
                     "created_at": revision.created_at,
                     "comment": revision.comment,
-                    "source": revision.source.wiki_text,
-                    "html": revision.html
+                    "source": revision.source.wiki_text if source else None,
+                    "html": revision.html if html else None
                 }
             )
 

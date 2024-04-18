@@ -2,10 +2,12 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-from routers.template import main as template_router
+from routers.pages import main as pages_router
+from routers.root import main as root_router
 from util.env import get_env
+
+# from fastapi.staticfiles import StaticFiles
 
 # get environment mode
 env_mode = get_env("ENV_MODE", "development")
@@ -28,7 +30,8 @@ if env_mode == "production":
 app = FastAPI(**app_params)
 
 origins = [
-    "http://example.com",
+    "http://localhost:3000",
+    "https://wdapi.scp-wiki.jp"
 ]
 
 app.add_middleware(
@@ -40,10 +43,12 @@ app.add_middleware(
 )
 
 # mount static folder
-app.mount("/static", StaticFiles(directory="/app/static"), name="static")
+# app.mount("/static", StaticFiles(directory="/app/static"), name="static")
 
 # add routers
 app.include_router(
-    template_router.router,
-    prefix="/template"
+    root_router.router
+)
+app.include_router(
+    pages_router.router
 )

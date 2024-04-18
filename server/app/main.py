@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from routers.pages import main as pages_router
 from routers.root import main as root_router
@@ -13,11 +14,13 @@ from util.env import get_env
 env_mode = get_env("ENV_MODE", "development")
 
 # logger config
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARN)
+logger = logging.getLogger("uvicorn")
 
 if env_mode == "development":
     logger.setLevel(level=logging.DEBUG)
+elif env_mode == "production":
+    logger.setLevel(level=logging.INFO)
 
 # production時，docsを表示しない
 app_params = {}
@@ -42,8 +45,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # mount static folder
 # app.mount("/static", StaticFiles(directory="/app/static"), name="static")
+
+# check credentials
+@app.middleware("http")
+async def my_middleware(request: Request, call_next):
+    # Authorizationヘッダーを取得
+    authorization = request.headers.get("Authorization")
+
+    # Authorizationヘッダーがない場合はエラー
+    # AuthorizationヘッダーがBearerで始まらない場合はエラー
+    if authorization is None or not authorization.startswith("Bearer "):
+        return JSONResponse(status_code=401, content={"message": "Authorization header is required."})
+
+    # Bearerトークンを取得
+    token = authorization.split(" ")[1]
+
+    # Bearerトークンが正しいか確認
+    if token != get_env("API_CREDENTIAL"):
+        return JSONResponse(status_code=401, content={"message": "Bearer token is invalid."})
+
+    # 次のミドルウェアまたはエンドポイントの処理を呼び出し
+    return await call_next(request)
+
 
 # add routers
 app.include_router(

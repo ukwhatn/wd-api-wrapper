@@ -31,7 +31,7 @@ app = FastAPI(**app_params)
 
 origins = [
     "http://localhost:3000",
-    "https://wdapi.scp-wiki.jp"
+    "https://wdapi.scpwiki.jp"
 ]
 
 app.add_middleware(

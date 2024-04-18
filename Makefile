@@ -15,6 +15,10 @@ up:
 down:
 	docker compose -f $(COMPOSE_YML) down
 
+reload:
+	docker compose -f $(COMPOSE_YML) down
+	docker compose -f $(COMPOSE_YML) up -d
+
 reset:
 	docker compose -f $(COMPOSE_YML) down --volumes --remove-orphans
 

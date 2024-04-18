@@ -10,9 +10,9 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
-          key: ${{ secrets.SK }}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
           host: ${{secrets.SSH_HOST}}
-          username: ${{secrets.SSH_USERNAME}}
+          username: ${{secrets.SSH_USER}}
           port: ${{secrets.SSH_PORT}}
           script: |
             cd wd-api-wrapper

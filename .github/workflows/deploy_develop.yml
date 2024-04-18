@@ -1,13 +1,13 @@
 name: CD
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install SSH Key for Deploy
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           key: ${{ secrets.SK }}
@@ -15,9 +15,8 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           port: ${{secrets.SSH_PORT}}
           script: |
-            cd isp2-b02-backend
-            git pull origin develop
-            make build
-            make down
-            make up
-            make migrate
+            cd wd-api-wrapper
+            git pull origin main
+            make build ENV=prod
+            make down ENV=prod
+            make up ENV=prod

@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
+    ports:
+      - "127.0.0.1:8000:80"
+      - "172.0.11.201:8000:80"
+    env_file:
+      - ./envs/server.env
+    restart: always

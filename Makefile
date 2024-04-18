@@ -47,4 +47,4 @@ deploy:
 	gh pr create --base main --head $(shell git branch --show-current)
 	gh pr view --web
 
-PHONY: build up down reset ps logs revision migrate init install-local-requirements
+PHONY: build up down reset ps logs revision migrate init install-local-requirements deploy

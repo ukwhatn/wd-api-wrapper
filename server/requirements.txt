@@ -1,4 +1,4 @@
-fastapi==0.110.1
+fastapi==0.110.2
 uvicorn[standard]==0.29.0
 websockets==12.0
 wikidot==3.0.4
